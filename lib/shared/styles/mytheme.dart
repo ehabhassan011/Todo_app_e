@@ -16,7 +16,6 @@ class MyThemeData {
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: Colors.white,
-        type: BottomNavigationBarType.shifting,
         unselectedItemColor: Colors.grey.shade400,
         selectedItemColor: lightColor,
       ),
