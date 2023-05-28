@@ -72,5 +72,8 @@ class _HomeLayoutState extends State<HomeLayout> {
         });
   }
 
-  var tabs = [SettengScreen(), TaskScreen()];
+  var tabs = [
+    TaskScreen(),
+    SettengScreen(),
+  ];
 }
