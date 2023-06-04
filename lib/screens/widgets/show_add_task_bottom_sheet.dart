@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:todo_app_e/firebase_function/firebase_function.dart';
+import 'package:todo_app_e/models/Taskmodel.dart';
 
 class ShowAddTaskBottomSheet extends StatefulWidget {
-  static const String routeName = "showaddTask";
+  static const String routeName = "Task";
 
   @override
   State<ShowAddTaskBottomSheet> createState() => _ShowAddTaskBottomSheetState();
@@ -9,6 +11,11 @@ class ShowAddTaskBottomSheet extends StatefulWidget {
 
 class _ShowAddTaskBottomSheetState extends State<ShowAddTaskBottomSheet> {
   var formKey = GlobalKey<FormState>();
+  var taskTitleController = TextEditingController();
+
+  var taskDescriptionController = TextEditingController();
+
+  DateTime selectedDate = DateUtils.dateOnly(DateTime.now());
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +42,7 @@ class _ShowAddTaskBottomSheetState extends State<ShowAddTaskBottomSheet> {
                 height: 35,
               ),
               TextFormField(
+                controller: taskTitleController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "please enter Task Title";
@@ -51,11 +59,12 @@ class _ShowAddTaskBottomSheetState extends State<ShowAddTaskBottomSheet> {
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide:
-                          BorderSide(color: Theme.of(context).primaryColor)),
+                      BorderSide(color: Theme.of(context).primaryColor)),
                 ),
               ),
               SizedBox(height: 25),
               TextFormField(
+                controller: taskDescriptionController,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "please enter Task Description";
@@ -70,7 +79,7 @@ class _ShowAddTaskBottomSheetState extends State<ShowAddTaskBottomSheet> {
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide:
-                          BorderSide(color: Theme.of(context).primaryColor)),
+                      BorderSide(color: Theme.of(context).primaryColor)),
                 ),
               ),
               SizedBox(height: 15),
@@ -93,7 +102,7 @@ class _ShowAddTaskBottomSheetState extends State<ShowAddTaskBottomSheet> {
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Text(
-                    "12/12/2012",
+                    selectedDate.toString().substring(0, 10),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -106,7 +115,14 @@ class _ShowAddTaskBottomSheetState extends State<ShowAddTaskBottomSheet> {
                       minimumSize: Size(20, 20), padding: EdgeInsets.all(15)),
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
-                      print("Route");
+                      TaskModel task = TaskModel(
+                        title: taskTitleController.text,
+                        description: taskDescriptionController.text,
+                        isDone: false,
+                        date: selectedDate.microsecondsSinceEpoch,
+                      );
+                      FirebaseFunctions.addTaskToFirestore(task);
+                      Navigator.pop(context);
                     }
                   },
                   child: Text(
@@ -123,11 +139,15 @@ class _ShowAddTaskBottomSheetState extends State<ShowAddTaskBottomSheet> {
     );
   }
 
-  void ChooseTaskDate(BuildContext context) {
-    showDatePicker(
+  void ChooseTaskDate(BuildContext context) async {
+    DateTime? chosenDate = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: selectedDate,
         firstDate: DateTime.now(),
         lastDate: DateTime.now().add(Duration(days: 365)));
+    if (chosenDate != null) {
+      selectedDate = DateUtils.dateOnly(chosenDate);
+      setState(() {});
+    }
   }
 }
